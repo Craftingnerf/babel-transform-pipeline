@@ -1,0 +1,27 @@
+{
+  "name": "babel-obfuscator",
+  "version": "1.0.0",
+  "description": "babeljs obfuscator",
+  "homepage": "https://github.com/Craftingnerf/babel-obfuscator#readme",
+  "bugs": {
+    "url": "https://github.com/Craftingnerf/babel-obfuscator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Craftingnerf/babel-obfuscator.git"
+  },
+  "license": "MIT",
+  "author": "CraftingNerf",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.js ./testSamples -o ./output"
+  },
+  "dependencies": {
+    "@babel/core": "^8.0.7",
+    "@babel/generator": "^8.0.6",
+    "@babel/parser": "^8.0.7",
+    "@babel/traverse": "^8.0.7",
+    "@babel/types": "^8.0.6"
+  }
+}
