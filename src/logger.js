@@ -1,14 +1,11 @@
-
-export const logLevel = Object.freeze({
-    ERROR:0,
-    WARN:1,
-    DEBUG:2,
-    VERBOSE:3,
-});
-
 export class Logger {
-    
-    constructor(name, level = logLevel.DEBUG, showFuncNames = true) {
+    static logLevel = Object.freeze({
+        ERROR:0,
+        WARN:1,
+        DEBUG:2,
+        VERBOSE:3,
+    });
+    constructor(name, level = Logger.logLevel.DEBUG, showFuncNames = true) {
         this.name = name;
         this.level = level;
         this.showFuncNames = showFuncNames;
@@ -59,27 +56,29 @@ export class Logger {
     
     static indentStr(indent) {
         let out = "";
-        for (let i = 0; i < indent; i++)
+        for (let i = 0; i < indent-1; i++)
             out += "    ";
+        if (indent != 0)
+            out += "    "
         return out;
     }
     nameStr(indent = 0) {
         return `${Logger.indentStr(indent)}[${this.name}]`;
     }
     verbose(message, indent = 0) {
-        if (logLevel.VERBOSE <= this.level)
+        if (Logger.logLevel.VERBOSE <= this.level)
             console.log(this.nameStr(indent), '[VERBOSE]', this.locationObjStr(1), message);
     }
-    log(message, indent = 0) {
-        if (logLevel.DEBUG <= this.level)
-            console.log(this.nameStr(indent), '[DEBUG]', this.locationObjStr(1), message);
+    debug(message, indent = 0) {
+        if (Logger.logLevel.DEBUG <= this.level)
+            console.debug(this.nameStr(indent), '[DEBUG]', this.locationObjStr(1), message);
     }
     warn(message, indent = 0) {
-        if (logLevel.WARN <= this.level)
+        if (Logger.logLevel.WARN <= this.level)
             console.warn(this.nameStr(indent), '[WARN]', this.locationObjStr(1), message);
     }
     error(message, indent = 0) {
-        if (logLevel.ERROR <= this.level)
+        if (Logger.logLevel.ERROR <= this.level)
             console.error(this.nameStr(indent), '[ERROR]', this.locationObjStr(1), message);
     }
 }

@@ -3,7 +3,7 @@
 // loop over all declarations and check to see what they are and reidentify them
 import * as t from "@babel/types";
 import {TransformObject} from "./transformClasses.js";
-import * as Logger from "../src/logger.js";
+import { Logger } from "../src/logger.js";
 
 const CASE_TYPE = Object.freeze({
     camelCase: 0,
@@ -73,43 +73,48 @@ const typeMap = {
     ClassDeclaration: "Classes",
 }
 class IdentifierNormalizer extends TransformObject {
+    static types = CASE_TYPE;
     constructor() {
         super();
         this.name = "Identifier Normalizer";
         this.settings = {
-            types: CASE_TYPE,
+            IndentLevel: 2,
+            LogLevel: Logger.logLevel.DEBUG,
             LengthCutoff: 4,
-            indentLevel: 2,
-            logLevel: Logger.logLevel.DEBUG,
             Variables: CASE_TYPE.camelCase,
             Functions: CASE_TYPE.camelCase,
             Classes: CASE_TYPE.PascalCase,
         }
-        this.log = new Logger.Logger("Identifier Normalizer", this.settings.logLevel, false);
+        this.log = new Logger("Identifier Normalizer", this.settings.LogLevel, false);
     }
     getTransform() {
-        this.log.level = this.settings.logLevel;
+        this.log.level = this.settings.LogLevel;
         const self = this;
         return {
             "VariableDeclarator|FunctionDeclaration|ClassDeclaration"(path) {
                 // maps the type of identifier we want to check against
                 const type = self.settings[typeMap[path.node.type]];
                 if (!t.isIdentifier(path.node.id)) {
-                    self.log.verbose("Couldnt find identifier", self.settings.indentLevel);
+                    self.log.verbose("Couldnt find identifier", self.settings.IndentLevel);
                     return;
                 }
                 const identifier = path.node.id;
                 if (identifier.name.length <= self.settings.LengthCutoff) {
-                    self.log.verbose("Identifier name is below cut-off range", self.settings.indentLevel);
+                    self.log.verbose("Identifier name is below cut-off range", self.settings.IndentLevel);
                     return;
                 }
                 if (checkCase(identifier.name, type)) {
-                    self.log.verbose("Identifier is already following conventions", self.settings.indentLevel);
+                    self.log.verbose("Identifier is already following conventions", self.settings.IndentLevel);
                     return;
                 }
                 const oldName = identifier.name;
-                const newName = rebuildCase(oldName, type)
-                self.log.log(`Replacing (${oldName}) with (${newName})`, self.settings.indentLevel);
+                const newName = rebuildCase(oldName, type);
+                const bindings = path.scope.getBinding(newName);
+                if (bindings != undefined){
+                    self.log.warn(`Cant replace (${oldName}), (${newName}) is already in use!`, self.settings.IndentLevel);
+                    return;
+                }
+                self.log.debug(`Replacing (${oldName}) with (${newName})`, self.settings.IndentLevel);
                 path.scope.rename(oldName, newName);
             }
         }
