@@ -1,16 +1,17 @@
 import { parseArgs, checkRequred } from "./src/argsParsing.js";
 import { formatArguments } from "./src/FileSystem/formatArgs.js";
-import { processPipeline } from "./src/pipeline.js";
-import { identifierNormalizer } from "./src/transforms/index.js"
-
+import { processPipeline, codeGenSettings } from "./src/pipeline.js";
+import { IdentifierNormalizer } from "./transforms/index.js"
+import { logLevel } from "./src/logger.js";
 // get the arguments we need
 const args = parseArgs();
 // make sure we have the minimum required arguments to run
 checkRequred(args);
 const targets = formatArguments(args);
-const identifierSettings = identifierNormalizer.getSettings();
-identifierSettings.Functions = identifierNormalizer.CASE_TYPE.snake_case;
-const pipeline = [identifierNormalizer.getTransform(identifierSettings)];
+const identifierNormalizer = new IdentifierNormalizer()
+identifierNormalizer.settings.Functions = identifierNormalizer.settings.types.snake_case
+identifierNormalizer.settings.logLevel = logLevel.WARN;
+const pipeline = [identifierNormalizer];
 processPipeline(targets, pipeline);
 
 
